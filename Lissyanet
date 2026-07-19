@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<!--
+  ============================================================
+  Página de regalo — hecha con cariño.
+
+  CÓMO AÑADIR UNA CARTA NUEVA:
+  Busca el array "CARTAS" dentro de <script>. Copia un bloque,
+  pégalo antes del cierre "]" y cambia fecha / título / contenido.
+  El candado, la cuenta atrás y el botón de abrir se generan solos.
+  ============================================================
+-->
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#10122A">
+<title>Para ti 💌</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💌</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,600&family=Caveat:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #0F1229;
+    --bg-deep2: #241B3A;
+    --gold: #E7B95C;
+    --gold-soft: #F0D28E;
+    --rose: #E8828F;
+    --paper: #FBF3E4;
+    --paper-shadow: #e8ddc4;
+    --ink: #3B2A24;
+    --text-soft: #DAD5EA;
+    --text-mut: #9C97B8;
+    --max: 640px;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  
+  body {
+    margin: 0;
+    background: linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-deep2) 55%, #1a1430 100%);
+    color: var(--text-soft);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    position: relative;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3 { font-family: 'Playfair Display', serif; margin: 0; font-weight: 600; }
+  .script { font-family: 'Caveat', cursive; }
+  a { color: inherit; }
+
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 24px; }
+
+  /* ---------- Fondo corregido ---------- */
+  .bg-photo {
+    position: fixed; 
+    inset: 0; 
+    z-index: -1;
+    background: radial-gradient(circle at top, rgba(231,185,92,0.1) 0%, transparent 70%);
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-top: 20px;
+  }
+
+  .initials {
+    font-size: 4rem;
+    color: var(--gold);
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+  }
+
+  .timeline-counter {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(231, 185, 92, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    backdrop-filter: blur(5px);
+  }
+
+  .timeline-counter h3 {
+    color: var(--gold-soft);
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+  }
+
+  #counter-value {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--rose);
+  }
+
+  .update-notice {
+    background: rgba(232, 130, 143, 0.1);
+    border-left: 4px solid var(--rose);
+    padding: 14px;
+    font-size: 0.95rem;
+    margin-bottom: 30px;
+    border-radius: 4px;
+    text-align: left;
+    color: var(--text-soft);
+  }
+
+  /* ---------- Sistema de Cartas ---------- */
+  .cartas-grid {
+    display: grid;
+    gap: 25px;
+  }
+
+  .carta-card {
+    background: var(--paper);
+    color: var(--ink);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .carta-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px dashed var(--paper-shadow);
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+  }
+
+  .carta-title {
+    font-size: 1.8rem;
+    color: var(--ink);
+  }
+
+  .carta-date {
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 600;
+  }
+
+  .carta-content {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    display: none;
+  }
+  
+  .carta-content p {
+     margin-bottom: 15px;
+  }
+
+  .signature {
+    text-align: right;
+    font-size: 1.8rem;
+    color: var(--rose);
+    margin-top: 25px;
+  }
+
+  /* ---------- Estados de Bloqueo ---------- */
+  .locked-overlay {
+    text-align: center;
+    padding: 20px 0;
+  }
+
+  .lock-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+  }
+
+  .countdown {
+    color: var(--rose);
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+
+  .btn-abrir {
+    background: var(--gold);
+    color: var(--bg-deep);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+    display: block;
+    width: 100%;
+    text-align: center;
+  }
+
+  .btn-abrir:hover {
+    background: var(--gold-soft);
+    transform: translateY(-2px);
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-photo"></div>
+
+<div class="wrap">
+  <header>
+    <h1 class="initials script">G & L</h1>
+    
+    <div class="timeline-counter">
+      <h3>Tiempo de nuestra historia 💖</h3>
+      <div id="counter-value">Calculando...</div>
+    </div>
+    
+    <div class="update-notice">
+      ✨ <strong>Aviso especial:</strong> Esta página tiene una actualización de contenido obligatoria programada para el <strong>10/11/2026</strong>. 
+    </div>
+  </header>
+
+  <main>
+    <div class="cartas-grid" id="cartas-container">
+      <!-- Las cartas se inyectan automáticamente aquí -->
+    </div>
+  </main>
+</div>
+
+<script>
+  // =========================================================
+  // CONFIGURACIÓN PRINCIPAL
+  // =========================================================
+  
+  // Fecha en la que empezó todo (Formato: AAAA-MM-DDTHH:MM:SS)
+  const FECHA_INICIO = new Date("2024-11-10T00:00:00");
+  
+  // =========================================================
+  // ARRAY DE CARTAS
+  // Copia, pega y edita los bloques para añadir nuevas cartas.
+  // =========================================================
+  const CARTAS = [
+    {
+      id: 1,
+      titulo: "El comienzo de todo",
+      fechaApertura: "2024-11-10T00:00:00", 
+      contenido: `
+        <p class="script" style="font-size: 1.5rem;">¡Hola, mi amor!</p>
+        <p>Esta es la primera de muchas sorpresas que he preparado para ti en este rinconcito digital nuestro.</p>
+        <p>He creado este espacio para ir guardando nuestros momentos. Si ves cartas con un candado, significa que tendrás que esperar a la fecha indicada para poder leerlas. ¡Paciencia!</p>
+        <p class="script signature">Con todo mi amor</p>
+      `
+    },
+    {
+      id: 2,
+      titulo: "Nuestra sorpresa futura",
+      fechaApertura: "2026-11-10T00:00:00", // Carta bloqueada por defecto para prueba
+      contenido: `
+        <p>Si estás leyendo esto, es que finalmente la cuenta regresiva llegó a cero y pudiste abrir el candado.</p>
+        <p>El tiempo pasa, pero lo importante es que lo pasamos juntos. ❤️</p>
+      `
+    }
+  ];
+
+  // =========================================================
+  // MOTOR DE LA PÁGINA (Lógica JavaScript)
+  // =========================================================
+
+  // 1. Contador principal de la relación
+  function actualizarContador() {
+    const ahora = new Date();
+    const diferencia = ahora - FECHA_INICIO;
+    
+    if (diferencia < 0) return;
+
+    const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
+    const horas = Math.floor((diferencia / (1000 * 60 * 60)) % 24);
+    const minutos = Math.floor((diferencia / 1000 / 60) % 60);
+    const segundos = Math.floor((diferencia / 1000) % 60);
+
+    document.getElementById('counter-value').innerText = 
+      \`\${dias} días, \${horas}h \${minutos}m \${segundos}s\`;
+  }
+
+  // 2. Renderizar todas las cartas en el DOM
+  const container = document.getElementById('cartas-container');
+
+  function renderizarCartas() {
+    container.innerHTML = '';
+    const ahora = new Date();
+
+    CARTAS.forEach(carta => {
+      const fecha = new Date(carta.fechaApertura);
+      const bloqueada = ahora < fecha;
+      
+      const cardDiv = document.createElement('div');
+      cardDiv.className = 'carta-card';
+      
+      let html = \`
+        <div class="carta-header">
+          <h2 class="carta-title script">\${carta.titulo}</h2>
+          <span class="carta-date">\${fecha.toLocaleDateString('es-ES')}</span>
+        </div>
+      \`;
+
+      if (bloqueada) {
+        html += \`
+          <div class="locked-overlay">
+            <div class="lock-icon">🔒</div>
+            <div class="countdown" id="cd-\${carta.id}">Calculando...</div>
+          </div>
+        \`;
+      } else {
+        html += \`
+          <button class="btn-abrir" onclick="toggleCarta(\${carta.id}, this)">Abrir sorpresa 💌</button>
+          <div class="carta-content" id="content-\${carta.id}">
+            \${carta.contenido}
+          </div>
+        \`;
+      }
+
+      cardDiv.innerHTML = html;
+      container.appendChild(cardDiv);
+    });
+  }
+
+  // 3. Manejo de los temporizadores de las cartas con candado
+  function actualizarCandados() {
+    const ahora = new Date();
+    let reRenderizar = false;
+
+    CARTAS.forEach(carta => {
+      const fecha = new Date(carta.fechaApertura);
+      
+      if (ahora < fecha) {
+        const elementoDOM = document.getElementById('cd-' + carta.id);
+        if (elementoDOM) {
+          const diff = fecha - ahora;
+          const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+          const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+          const m = Math.floor((diff / 1000 / 60) % 60);
+          const s = Math.floor((diff / 1000) % 60);
+          
+          elementoDOM.innerText = \`Disponible en: \${d}d \${h}h \${m}m \${s}s\`;
+        }
+      } else if (ahora >= fecha && document.getElementById('cd-' + carta.id)) {
+        reRenderizar = true; // Si el tiempo llega a cero con la página abierta, actualiza la UI
+      }
+    });
+
+    if (reRenderizar) renderizarCartas();
+  }
+
+  // 4. Interacción del botón Abrir/Cerrar
+  window.toggleCarta = function(id, btn) {
+    const content = document.getElementById('content-' + id);
+    if (content.style.display === 'block') {
+      content.style.display = 'none';
+      btn.innerText = "Abrir sorpresa 💌";
+      btn.style.background = "var(--gold)";
+    } else {
+      content.style.display = 'block';
+      btn.innerText = "Cerrar carta 🙈";
+      btn.style.background = "var(--text-mut)";
+    }
+  }
+
+  // Arrancar funciones y bucles
+  renderizarCartas();
+  actualizarContador();
+  setInterval(actualizarContador, 1000);
+  setInterval(actualizarCandados, 1000);
+
+</script>
+</body>
+</html>
