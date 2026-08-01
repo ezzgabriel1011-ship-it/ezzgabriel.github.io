@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<!--
+  ============================================================
+  Página de regalo — hecha con cariño.
+
+  CÓMO AÑADIR UNA CARTA NUEVA:
+  Busca el array "CARTAS" dentro de <script>. Copia un bloque,
+  pégalo antes del cierre "]" y cambia fecha / título / contenido.
+  El candado, la cuenta atrás y el botón de abrir se generan solos.
+  ============================================================
+-->
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#F4849A">
+<title>Para ti 💌</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💕</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,600&family=Caveat:wght@500;600;700&family=Inter:wght@400;500;600;700;900&family=Permanent+Marker&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* Colores inspirados en la portada "Un Verano Sin Ti" */
+    --bg-sky: #F4849A;    /* Cielo rosado */
+    --bg-sea: #93B8EF;    /* Mar azul */
+    --bg-sand1: #F5A52B;  /* Arena amarilla */
+    --bg-sand2: #EB5D1E;  /* Arena naranja */
+    
+    --heart-red: #E22015; /* Rojo del corazón */
+    --sun-yellow: #FFD500;/* Amarillo sol */
+    
+    --paper: #FDF6EC;     /* Papel cálido para las cartas */
+    --ink: #1A1A1A;       /* Negro tipo marcador */
+    --text-soft: #FFFFFF;
+    
+    /* Estilos Pop-Art / Dibujo a mano */
+    --border-dark: 3px solid var(--ink);
+    --pop-shadow: 5px 5px 0px var(--ink);
+    
+    --max: 640px;
+    --ease: cubic-bezier(.16,1,.3,1);
+    --ease-spring: cubic-bezier(.34,1.56,.64,1);
+    
+    /* Textura de grano retro */
+    --grain-opacity: 0.04;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    /* Degradado duro que simula el cielo, el mar y la arena de la portada */
+    background: linear-gradient(180deg, 
+      var(--bg-sky) 0%, 
+      var(--bg-sky) 30%, 
+      var(--bg-sea) 30%, 
+      var(--bg-sea) 55%, 
+      var(--bg-sand1) 55%, 
+      var(--bg-sand2) 100%
+    );
+    background-attachment: fixed;
+    color:var(--text-soft);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  /* Capa de textura de grano retro (serigrafía) */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    /* Patrón SVG con ruido */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.5'/%3E%3C/svg%3E");
+    background-size: 256px 256px;
+    opacity: 0.035;
+    mix-blend-mode: overlay;
+  }
+
+  h1,h2,h3{font-family:'Playfair Display',serif; margin:0; font-weight:700;}
+  .script{font-family:'Caveat',cursive;}
+  a{color:inherit;}
+
+  .wrap{max-width:var(--max); margin:0 auto; padding:0 24px;}
+
+  /* ---------- Elementos flotantes tropicales ---------- */
+  .fireflies{position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden;}
+  
+  /* Sobreescribimos las luciérnagas para convertirlas en emojis del álbum usando solo CSS */
+  .firefly{
+    position:absolute; 
+    background:transparent !important; 
+    box-shadow:none !important;
+    width:auto !important; 
+    height:auto !important;
+    opacity:0;
+    display:flex; align-items:center; justify-content:center;
+    filter: drop-shadow(2px 2px 0px rgba(26,26,26,0.6));
+  }
+  .firefly:nth-child(4n)::after { content: '🌺'; font-size: 26px; }
+  .firefly:nth-child(4n+1)::after { content: '💕'; font-size: 22px; }
+  .firefly:nth-child(4n+2)::after { content: '☀️'; font-size: 28px; }
+  .firefly:nth-child(4n+3)::after { content: '🐬'; font-size: 24px; }
+
+  @keyframes fireflyFloat {
+    0% { transform: translateY(20px) translateX(0) scale(0.8) rotate(-10deg); opacity: 0; }
+    20% { opacity: 1; }
+    50% { transform: translateY(-30px) translateX(25px) scale(1.2) rotate(15deg); }
+    80% { opacity: 1; }
+    100% { transform: translateY(-80px) translateX(-15px) scale(0.9) rotate(-20deg); opacity: 0; }
+  }
+
+  section{position:relative; z-index:1;}
+
+  /* ---------- reveal on scroll ---------- */
+  .reveal{opacity:0; transform:translateY(22px); transition:opacity .9s var(--ease), transform .9s var(--ease);}
+  .reveal.in-view{opacity:1; transform:translateY(0);}
+
+  /* ---------- hero ---------- */
+  .hero{
+    min-height:100svh; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; text-align:center;
+    padding:80px 24px 40px;
+  }
+  .hero-in{opacity:0; transform:translateY(16px); animation:heroIn .9s var(--ease) forwards;}
+  .hero .eyebrow.hero-in{animation-delay:.05s;}
+  .hero h1.hero-in{animation-delay:.18s;}
+  .hero p.hero-in{animation-delay:.34s;}
+  .hero .counter.hero-in{animation-delay:.5s;}
+  .hero .since.hero-in{animation-delay:.62s;}
+  .hero .scrollcue.hero-in{animation-delay:.8s;}
+  @keyframes heroIn{ to{opacity:1; transform:translateY(0);} }
+
+  .eyebrow{
+    text-transform:uppercase; letter-spacing:.2em; font-size:.8rem;
+    color: #FFF; margin-bottom:18px; font-weight:800;
+    text-shadow: 2px 2px 0px var(--ink);
+  }
+  .hero h1{
+    font-family:'Caveat',cursive; font-weight:700;
+    font-size:clamp(3rem,12vw,5rem);
+    color: #FFF; line-height:1.05; margin-bottom:14px;
+    text-shadow: 4px 4px 0px var(--ink); /* Sombra sólida estilo cómic */
+    -webkit-text-stroke: 1px var(--ink);
+    transform: rotate(-2deg);
+  }
+  .hero p{
+    color:#FFF; max-width:420px; margin:0 auto; line-height:1.6;
+    font-size:1.05rem; font-weight: 600;
+    text-shadow: 2px 2px 0px var(--ink);
+  }
+
+  .counter{
+    margin-top:44px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;
+  }
+  .counter .unit{
+    background: var(--paper); 
+    border: var(--border-dark);
+    border-radius: 12px;
+    width:76px; padding:14px 0;
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    box-shadow: var(--pop-shadow); /* Sombra sólida */
+    transform: rotate(1deg);
+    transition: transform 0.2s;
+  }
+  .counter .unit:nth-child(even) {
+    transform: rotate(-1.5deg) translateY(4px);
+  }
+  
+  .counter .num{
+    font-family:'Playfair Display',serif; font-size:1.8rem; font-weight:900; 
+    color: var(--heart-red);
+    font-variant-numeric:tabular-nums; display:inline-block;
+  }
+  .counter .num.tick{animation:tickPulse .5s var(--ease-spring);}
+  @keyframes tickPulse{
+    0%{transform:scale(1);}
+    35%{transform:scale(1.25) rotate(5deg);}
+    100%{transform:scale(1);}
+  }
+  .counter .lbl{font-size:.7rem; font-weight: 800; text-transform:uppercase; letter-spacing:.08em; color:var(--ink);}
+  
+  .since{margin-top:24px; font-size:.85rem; font-weight:700; color:#FFF; text-shadow: 2px 2px 0px var(--ink);}
+
+  .scrollcue{
+    margin-top:56px; color:#FFF; font-size:1.8rem; font-weight: 900;
+    animation:bob 2.4s ease-in-out infinite;
+    text-shadow: 2px 2px 0px var(--ink);
+  }
+  @keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(10px);}}
+
+  /* ---------- section heading ---------- */
+  .section-head{text-align:center; padding:70px 24px 8px;}
+  .section-head .eyebrow{margin-bottom:10px;}
+  .section-head h2{color:#FFF; font-size:clamp(2rem,7vw,2.5rem); text-shadow: 3px 3px 0px var(--ink); -webkit-text-stroke: 1px var(--ink);}
+  .section-head p{color:#FFF; font-size:1rem; font-weight:600; margin-top:12px; max-width:400px; margin-left:auto; margin-right:auto; line-height:1.5; text-shadow: 2px 2px 0px var(--ink);}
+
+  /* ---------- cartas timeline ---------- */
+  .timeline{position:relative; margin-top:40px; padding-left:34px;}
+  .timeline::before{
+    content:''; position:absolute; left:11px; top:6px; bottom:6px; width:4px;
+    background: var(--ink);
+    border-radius: 4px;
+  }
+  .carta{position:relative; margin-bottom:28px; transition-delay:calc(var(--i,0) * 90ms);}
+  .carta::before{
+    content:''; position:absolute; left:-35.5px; top:18px; width:16px; height:16px; border-radius:50%;
+    background: var(--sun-yellow); border: 3px solid var(--ink); z-index:2;
+  }
+  .carta.locked::before{background: #A0A0A0;}
+  
+  .carta-card{
+    background: var(--paper); 
+    border: var(--border-dark);
+    border-radius: 14px; 
+    padding:18px 20px; display:flex; align-items:center; gap:16px;
+    cursor:pointer; transition:transform .2s var(--ease), box-shadow .2s var(--ease);
+    box-shadow: var(--pop-shadow);
+  }
+  .carta-card:hover{transform:translateY(-4px) translateX(-4px); box-shadow: 9px 9px 0px var(--ink);}
+  .carta-card:active{transform:translateY(2px) translateX(2px); box-shadow: 2px 2px 0px var(--ink); transition-duration:.1s;}
+  
+  .carta.locked .carta-card{
+    background: #E8E8E8; 
+    cursor:default;
+    box-shadow: 4px 4px 0px rgba(26,26,26,0.5);
+    border-color: rgba(26,26,26,0.5);
+  }
+  .carta.locked .carta-card:hover{transform:none; box-shadow: 4px 4px 0px rgba(26,26,26,0.5);}
+  .carta.locked .carta-card:active{transform:none;}
+  
+  .carta-icon{font-size:1.8rem; flex:none; filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.2));}
+  .carta-body{flex:1; min-width:0;}
+  .carta-date{font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color: var(--heart-red);}
+  .carta.locked .carta-date{color: #777;}
+  
+  /* Tipografía manuscrita estilo marcador para los títulos */
+  .carta-title{
+    font-family:'Permanent Marker', cursive; 
+    font-size:1.1rem; 
+    font-weight: 400; 
+    color:var(--ink); 
+    margin-top:4px;
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+  }
+  .carta.locked .carta-title{color: #555;}
+  .carta-sub{font-size:.8rem; font-weight:600; color: #555; margin-top:4px;}
+  
+  .timeline-note{text-align:center; color:#FFF; font-weight:700; font-size:.9rem; margin-top:30px; text-shadow: 2px 2px 0px var(--ink);}
+
+  .archive-btn{
+    display:block; margin:28px auto 0; padding:14px 26px; border-radius:30px;
+    background: var(--sun-yellow); border: var(--border-dark); box-shadow: var(--pop-shadow);
+    color: var(--ink); font-family:'Inter',sans-serif; font-weight:800; font-size:.9rem;
+    cursor:pointer; 
+    transition:transform .15s var(--ease), box-shadow .15s var(--ease);
+  }
+  .archive-btn:hover{transform:translateY(-3px) translateX(-3px); box-shadow: 8px 8px 0px var(--ink);}
+  .archive-btn:active{transform:translateY(2px) translateX(2px); box-shadow: 2px 2px 0px var(--ink);}
+  .archive-btn span{color: var(--heart-red); font-weight:900;}
+
+  .archive-back{
+    position:fixed; inset:0; z-index:150; background:rgba(26, 26, 26, .85); backdrop-filter:blur(4px);
+    display:flex; align-items:flex-end; justify-content:center;
+    opacity:0; pointer-events:none; transition:opacity .3s var(--ease);
+  }
+  .archive-back.show{opacity:1; pointer-events:auto;}
+  .archive-panel{
+    width:100%; max-width:var(--max); max-height:78vh; 
+    background: var(--bg-sea); /* Azul del mar para el panel */
+    border: var(--border-dark); border-bottom:none;
+    border-radius:24px 24px 0 0; padding:20px 4px 10px; display:flex; flex-direction:column;
+    transform:translateY(100%); transition:transform .4s var(--ease-spring);
+    box-shadow: 0px -10px 0px rgba(26,26,26,0.3);
+  }
+  .archive-back.show .archive-panel{transform:translateY(0);}
+  .archive-head{display:flex; align-items:center; justify-content:space-between; padding:4px 18px 14px; border-bottom: 3px solid var(--ink);}
+  .archive-head h3{color:var(--ink); font-size:1.2rem; font-weight:800;}
+  .archive-close{
+    background: var(--heart-red); border: 2px solid var(--ink); color:#FFF; font-weight:bold;
+    width:36px; height:36px; border-radius:50%; cursor:pointer; font-size:1rem;
+    box-shadow: 2px 2px 0px var(--ink); transition: transform 0.1s;
+  }
+  .archive-close:active{transform: scale(0.9) translate(2px, 2px); box-shadow: 0px 0px 0px var(--ink);}
+  
+  .archive-list{overflow-y:auto; padding:12px 10px 18px;}
+  .archive-row{
+    display:flex; flex-direction:column; gap:4px; padding:14px 14px; border-radius:12px;
+    cursor:pointer; transition: background .15s ease, transform .1s ease;
+    background: var(--paper); border: 2px solid var(--ink); margin-bottom: 10px;
+    box-shadow: 3px 3px 0px var(--ink);
+  }
+  .archive-row:hover{transform: translateY(-2px); box-shadow: 5px 5px 0px var(--ink);}
+  .archive-row:active{transform: translateY(2px); box-shadow: 1px 1px 0px var(--ink);}
+  .ar-date{font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--heart-red);}
+  
+  /* Tipografía manuscrita estilo marcador para los títulos del archivo */
+  .ar-title{
+    font-size:.95rem; 
+    font-weight:400; 
+    color:var(--ink); 
+    font-family:'Permanent Marker', cursive;
+    letter-spacing: 0.02em;
+  }
+  .archive-empty{text-align:center; color:var(--ink); font-weight:700; font-size:.95rem; padding:30px 20px;}
+
+  /* ---------- modal ---------- */
+  .modal-back{
+    position:fixed; inset:0; background:rgba(244, 132, 154, 0.9); backdrop-filter:blur(6px);
+    display:flex; align-items:center; justify-content:center; padding:20px; z-index:100;
+    opacity:0; pointer-events:none; transition:opacity .35s var(--ease);
+  }
+  .modal-back.show{opacity:1; pointer-events:auto;}
+  .letter{
+    background:var(--paper); color:var(--ink); 
+    border: var(--border-dark); border-radius: 12px;
+    max-width:440px; width:100%; max-height:82vh; overflow-y:auto; padding:36px 28px 30px; position:relative;
+    box-shadow: 8px 8px 0px var(--ink);
+    transform:translateY(28px) scale(.94) rotate(-1deg); transition:transform .4s var(--ease-spring);
+  }
+  .modal-back.show .letter{transform:translateY(0) scale(1) rotate(0deg);}
+  .letter-date{font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:var(--heart-red);}
+  .letter h3{font-family:'Playfair Display',serif; margin-top:10px; font-size:1.5rem; font-weight:800; color:var(--ink);}
+  .letter-body{font-family:'Caveat',cursive; font-size:1.45rem; line-height:1.4; margin-top:18px; white-space:pre-wrap; font-weight:600;}
+  .letter-close{
+    position:absolute; top:16px; right:16px; background:var(--sun-yellow); border: 2px solid var(--ink); cursor:pointer;
+    font-size:1.2rem; font-weight:bold; color:var(--ink); width:36px; height:36px; border-radius:50%;
+    box-shadow: 2px 2px 0px var(--ink); transition: transform 0.1s;
+  }
+  .letter-close:active{transform: scale(0.9) translate(2px, 2px); box-shadow: 0px 0px 0px var(--ink);}
+
+  /* ---------- closing ---------- */
+  .closing{padding:90px 24px 40px; text-align:center;}
+  .closing h2{
+    font-family:'Caveat',cursive; font-weight:700; color:#FFF;
+    font-size:clamp(2.4rem,9vw,3.2rem); line-height:1.15;
+    text-shadow: 4px 4px 0px var(--ink); -webkit-text-stroke: 1px var(--ink);
+    transform: rotate(2deg);
+  }
+  .closing .star-ic{font-size:2.8rem; display:block; margin-bottom:14px; filter: drop-shadow(3px 3px 0px var(--ink));}
+
+  .special-note{
+    margin:40px auto 0; max-width:420px; background:var(--paper);
+    border: var(--border-dark); border-radius:18px; padding:24px 20px;
+    box-shadow: var(--pop-shadow);
+    transform: rotate(-1deg);
+  }
+  .special-note .sn-title{color:var(--heart-red); font-weight:900; font-size:.9rem; letter-spacing: 0.05em;}
+  .special-note p{font-size:.9rem; font-weight:600; color:var(--ink); line-height:1.55; margin:10px 0 0;}
+  .special-note .sn-count{margin-top:16px; font-size:.8rem; font-weight:700; color:var(--ink);}
+  .special-note .sn-count b{color:var(--heart-red); font-size:1.1rem; font-weight:900; font-variant-numeric:tabular-nums;}
+
+  footer{text-align:center; padding:30px 24px; color:#FFF; font-weight:700; font-size:.85rem; text-shadow: 2px 2px 0px var(--ink);}
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    .firefly,.scrollcue{animation:none !important;}
+    .reveal{transition:none;}
+    .hero-in{animation:none !important; opacity:1 !important; transform:none !important;}
+    .counter .num.tick{animation:none !important;}
+    .carta{transition-delay:0s !important;}
+    .archive-panel{transition:none !important;}
+  }
+
+  @media (min-width:700px){
+    .wrap{padding:0 24px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="fireflies" id="fireflies"></div>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero">
+  <div class="eyebrow hero-in">un rincón solo para ti</div>
+  <h1 class="hero-in">Para mi persona<br>favorita</h1>
+  <p class="hero-in">Aquí guardo los días que llevamos juntos contados uno a uno, y algunas cartas que te iré dejando por el camino.</p>
+
+  <div class="counter hero-in" id="counter">
+    <div class="unit"><span class="num" id="c-days">0</span><span class="lbl">días</span></div>
+    <div class="unit"><span class="num" id="c-hours">0</span><span class="lbl">horas</span></div>
+    <div class="unit"><span class="num" id="c-mins">0</span><span class="lbl">min</span></div>
+    <div class="unit"><span class="num" id="c-secs">0</span><span class="lbl">seg</span></div>
+  </div>
+  <div class="since hero-in">Desde el 10 de noviembre de 2024 hasta el infinito💫</div>
+
+  <div class="scrollcue hero-in">⌄</div>
+</section>
+
+<!-- ===================== CARTAS ===================== -->
+<section id="cartas">
+  <div class="section-head reveal">
+    <div class="eyebrow">💌 cartas</div>
+    <h2>Cartas para ti</h2>
+    <p>Algunas ya se pueden abrir. Otras tendrán que esperar un poco más.</p>
+  </div>
+  <div class="wrap">
+    <div class="timeline reveal" id="timeline"></div>
+    <div class="timeline-note">cada día 10 se añade una carta nueva, sola</div>
+    <button class="archive-btn reveal" id="archive-open" type="button">
+      📖 Ver todas las cartas <span id="archive-count"></span>
+    </button>
+  </div>
+</section>
+
+<!-- ===================== CIERRE ===================== -->
+<section class="closing reveal">
+  <span class="star-ic">💫💕💫</span>
+  <h2>Gracias por ser mi<br>persona favorita.</h2>
+
+  <div class="special-note">
+    <div class="sn-title">✨IMPORTANTE✨</div>
+    <p>El 10 de noviembre se actualiza la pagina.</p>
+    <div class="sn-count">Faltan <b id="special-days">—</b> días</div>
+  </div>
+</section>
+
+<footer>hecho con cariño, para ti 💕</footer>
+
+<!-- ===================== MODAL CARTA ===================== -->
+<div class="modal-back" id="modal">
+  <div class="letter" role="dialog" aria-modal="true" aria-labelledby="letter-title">
+    <button class="letter-close" id="letter-close" aria-label="Cerrar">✕</button>
+    <div class="letter-date" id="letter-date"></div>
+    <h3 id="letter-title"></h3>
+    <div class="letter-body" id="letter-body"></div>
+  </div>
+</div>
+
+<!-- ===================== ARCHIVO DE CARTAS ===================== -->
+<div class="archive-back" id="archive">
+  <div class="archive-panel" role="dialog" aria-modal="true" aria-label="Todas las cartas">
+    <div class="archive-head">
+      <h3>Todas tus cartas</h3>
+      <button class="archive-close" id="archive-close" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="archive-list" id="archive-list"></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   ✉️  CÓMO AÑADIR UNA CARTA NUEVA
+   Copia un bloque de los de abajo, pégalo antes del "]" y cambia:
+   - fecha:     "AAAA-MM-DD"  → día en que se desbloquea
+   - titulo:    el título que quieras
+   - contenido: el texto de la carta (puedes usar varias líneas)
+   No hay que tocar nada más. El candado y la cuenta atrás se
+   generan solos según la fecha.
+   ============================================================ */
+/* ===== CARTAS_START ===== */
+const CARTAS = [
+  {
+    fecha: "2026-07-10",
+    titulo: "Un pequeño rincón para ti",
+    contenido: `Querida Lissyanet,
+Si estás leyendo esto es porque por fin te enseñé este rincón que llevaba tiempo preparando para ti. No es gran cosa a primera vista pero confío en que te va a gustar. Esta pagina es un recordatorio más del amor que siento por vos, la verdad quería darte un regalo por tu “cumpleaños” pero no tenia presupuesto asi que se me ocurrio la idea de crear un pequeño lugar donde siempre que quieras puedes leer las cartas que te escribo y… ya se que no es un bolso ni un rimel, pero igual es con mucho amor. Como ya pudiste ver aun hay cartas que no se han desbloqueado asi que toca esperar. Realmente espero que esto te guste. Y una vez más.
+           		Con amor,               
+           		 Gabriel.              
+                                                      `
+  },
+  {
+    fecha: "2026-07-19",
+    titulo: "Para sacarte una sonrisa",
+    contenido: `Querida Lissyanet,
+Si ves esta carta significa que realmente te gustó este pequeño espacio que creé para vos. la verdad, a veces no sé muy bien qué ponerte en una carta sin que suene repetitivo, pero realmente me gusta escribirte, tan solo por el simple hecho de ver una sonrisa en tu hermoso rostro mientras la leés. Quiero aprovechar este espacio para poder expresar mis sentimientos hacia vos de una manera más sencilla. No importa si lo leés hoy, dentro de una semana o incluso dentro de varios meses. Mi intención es que cada vez que abras esta página puedas sentir un pedacito de todo el cariño con el que la hice. Gracias por tomarte el tiempo de leer esto y por ser la persona que me inspira a hacer todas estas pequeñas locuras. Ojalá esta carta consiga sacarte una sonrisa, aunque sea una chiquita, porque con eso ya sentiría que valió completamente la pena escribirla.
+                          Con amor,
+			Gabriel.
+                                             `
+  },
+  {
+    fecha: "2026-07-31",
+    titulo: "Necesitaba desahogarme",
+    contenido: `Querida Lissyanet,
+
+Hola, no sé si llegues a ver esto. La verdad, esta carta no es de amor, pero ya sabes que una de las formas más simples que tengo para expresar mis sentimientos es escribirte. Estos últimos días han sido muy difíciles para mí, han pasado demasiadas cosas y siento que yo estoy en el medio de todo; siento que yo soy lo que estorba. Tal vez no debería tomarme esto de esta manera, pero por mucho que lo intente, se me hace muy difícil. Ciertamente creo que la forma en la que me siento se debe a que soy muy sensible. Esto no debería afectarme tanto, pero ya sabes que a veces convierto un pequeño grano de arena en un enorme desierto. Yo sé que tú no tienes nada que ver con esto y tampoco quiero que te sientas mal ni mucho menos. A veces me pongo a pensar por qué me pasan este tipo de cosas a mí; o sea, ya sé que no he sido un santo, pero siempre intento que todo salga bien aunque no me beneficie, y a cambio solo me pasan cosas malas. La verdad, lo que más me molesta de todo es que Tulu se haya perdido. Él es muy importante para mí y le tengo mucho cariño, y si no aparece nunca más, no sé cómo podré acostumbrarme. Tal vez solamente debería intentar cambiar mi forma de llevar las cosas y no ser tan sensible… es una tontería, eso ya me lo he dicho mil veces y no lo he podido cambiar. Pero bueno, solamente se puede hacer una cosa y es seguir adelante, pase lo que pase.
+			Con amor,
+				Gabriel
+                                    
+                                                `
+  },
+];
+/* ===== CARTAS_END ===== */
+
+/* ============================================================
+   ✉️  CARTA AUTOMÁTICA DE CADA MES
+   Se genera sola el día "dia" de cada mes, empezando en "desde".
+   Cambia "titulo" y "contenido" cuando quieras — se actualiza
+   en todas las cartas futuras que aún no se hayan generado.
+   Pon "activa: false" si quieres desactivarla del todo.
+   ============================================================ */
+/* ===== MONTHLY_START ===== */
+const CARTA_MENSUAL = {
+  activa: true,
+  dia: 10,
+  desde: "2026-08-10",
+  titulo: "Un mes más",
+  contenido: `✏️ Esta es la carta que aparece sola el día 10 de cada mes.
+
+Cámbiala si quieres, o déjala así como recordatorio fijo de que seguimos sumando meses juntos.`
+};
+/* ===== MONTHLY_END ===== */
+
+const START_DATE   = parseLocalDate("2024-11-10");
+const SPECIAL_DATE = parseLocalDate("2026-11-10");
+const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function parseLocalDate(str){
+  const [y,m,d] = str.split('-').map(Number);
+  return new Date(y, m-1, d, 0, 0, 0);
+}
+
+function fmtFechaLarga(date){
+  return date.toLocaleDateString('es-ES', {day:'numeric', month:'long', year:'numeric'});
+}
+
+function pad2(n){ return String(n).padStart(2, '0'); }
+
+// genera una carta virtual para el día X de cada mes
+function generarCartasMensuales(){
+  if(!CARTA_MENSUAL.activa) return [];
+  const [y0, m0] = CARTA_MENSUAL.desde.split('-').map(Number);
+  const generadas = [];
+  const horizonte = new Date();
+  horizonte.setFullYear(horizonte.getFullYear() + 3);
+  let y = y0, m = m0;
+  
+  // La fecha se genera después de ajustar mes y año
+  while(true){
+    // Ajusta el año si el mes se pasa de diciembre
+    if(m > 12){ 
+      m = 1; 
+      y++; 
+    }
+    
+    const fechaCarta = new Date(y, m - 1, CARTA_MENSUAL.dia);
+    if(fechaCarta > horizonte) break;
+
+    generadas.push({
+      fecha: `${y}-${pad2(m)}-${pad2(CARTA_MENSUAL.dia)}`,
+      titulo: CARTA_MENSUAL.titulo,
+      contenido: CARTA_MENSUAL.contenido,
+    });
+    m++;
+  }
+  return generadas;
+}
+
+// combina las cartas escritas a mano con las mensuales automáticas
+function todasLasCartas(){
+  const fechasManual = new Set(CARTAS.map(c => c.fecha));
+  const mensuales = generarCartasMensuales().filter(c => !fechasManual.has(c.fecha));
+  return [...CARTAS, ...mensuales];
+}
+
+/* ---------- elementos tropicales flotantes ---------- */
+(function buildFireflies(){
+  const container = document.getElementById('fireflies');
+  const n = 35;
+  for(let i=0;i<n;i++){
+    const s = document.createElement('div');
+    s.className = 'firefly';
+    s.style.left = (Math.random()*100) + '%';
+    s.style.top = (Math.random()*100) + '%';
+    if(!REDUCED_MOTION){
+      s.style.animation = `fireflyFloat ${6 + Math.random()*6}s ease-in-out infinite`;
+      s.style.animationDelay = (Math.random()*6).toFixed(1) + 's';
+    } else {
+      s.style.opacity = '0.8';
+      s.style.animation = 'none';
+    }
+    container.appendChild(s);
+  }
+})();
+
+function pad(n){ return String(n).padStart(2,'0'); }
+
+/* ---------- Función para generar rotación aleatoria tipo polaroid/sticker ---------- */
+function getRandomTilt() {
+  // Guardamos la rotación en el elemento para que sea persistente
+  return (Math.random() * 4 - 2).toFixed(2); // Entre -2 y +2 grados
+}
+
+/* ---------- cartas / timeline ---------- */
+const timelineEl = document.getElementById('timeline');
+let cartaEls = [];
+const archiveEl = document.getElementById('archive');
+const archiveList = document.getElementById('archive-list');
+
+function buildTimeline(){
+  // Limpiar timeline antes de reconstruir
+  timelineEl.innerHTML = '';
+  cartaEls = [];
+  
+  const todas = todasLasCartas();
+  const now = new Date();
+
+  // ventana de las 5 cartas más cercanas a hoy
+  const conFecha = todas.map(c => ({carta:c, fecha:parseLocalDate(c.fecha)}));
+  conFecha.sort((a, b) => Math.abs(a.fecha - now) - Math.abs(b.fecha - now));
+  const ventana = conFecha.slice(0, 5).sort((a, b) => a.fecha - b.fecha);
+
+  ventana.forEach(({carta, fecha}, i) => {
+    const unlocked = now >= fecha;
+    const randomTilt = getRandomTilt();
+
+    const item = document.createElement('div');
+    item.className = 'carta reveal' + (unlocked ? '' : ' locked');
+    item.style.setProperty('--i', i);
+
+    const card = document.createElement('div');
+    card.className = 'carta-card';
+    // Aplicamos rotación aleatoria estable (sin hover por ahora para mantener el efecto)
+    card.style.transform = `rotate(${randomTilt}deg)`;
+    card.setAttribute('data-tilt', randomTilt);
+    
+    card.innerHTML = `
+      <div class="carta-icon">${unlocked ? '💌' : '🔒'}</div>
+      <div class="carta-body">
+        <div class="carta-date">${fmtFechaLarga(fecha)}</div>
+        <div class="carta-title">${unlocked ? carta.titulo : 'Carta bloqueada'}</div>
+        <div class="carta-sub sub-text"></div>
+      </div>
+    `;
+    if(unlocked){
+      card.addEventListener('click', () => openLetter(carta, fecha));
+      
+      // Restauramos la rotación en hover para mantener la interactividad
+      card.addEventListener('mouseenter', function() {
+        this.style.transform = `translateY(-4px) translateX(-4px) rotate(${this.getAttribute('data-tilt')}deg)`;
+      });
+      card.addEventListener('mouseleave', function() {
+        this.style.transform = `rotate(${this.getAttribute('data-tilt')}deg)`;
+      });
+    }
+    
+    item.appendChild(card);
+    timelineEl.appendChild(item);
+    cartaEls.push({el:item, sub:card.querySelector('.sub-text'), fecha, unlocked, carta});
+  });
+  refreshLockStates();
+
+  // archivo: todas las cartas disponibles
+  const disponibles = conFecha
+    .filter(c => now >= c.fecha)
+    .sort((a, b) => b.fecha - a.fecha);
+  renderArchivo(disponibles);
+}
+
+function refreshLockStates(){
+  const now = new Date();
+  cartaEls.forEach(ref => {
+    if(ref.unlocked){
+      ref.sub.textContent = 'toca para abrir';
+    } else {
+      const remain = ref.fecha - now;
+      const remDays = Math.max(0, Math.ceil(remain / 86400000));
+      ref.sub.textContent = remDays <= 0 ? 'se abre hoy' : `se abre en ${remDays} día${remDays===1?'':'s'}`;
+    }
+  });
+}
+buildTimeline();
+
+/* ---------- contador principal + cuenta especial ---------- */
+const counterEls = {
+  days: document.getElementById('c-days'),
+  hours: document.getElementById('c-hours'),
+  mins: document.getElementById('c-mins'),
+  secs: document.getElementById('c-secs'),
+};
+const prevCounter = {days:null, hours:null, mins:null, secs:null};
+function pulseIfChanged(el, key, val){
+  if(prevCounter[key] !== val){
+    prevCounter[key] = val;
+    if(!REDUCED_MOTION){
+      el.classList.remove('tick');
+      void el.offsetWidth;
+      el.classList.add('tick');
+    }
+  }
+}
+
+function tickCounters(){
+  const now = new Date();
+
+  // tiempo juntos
+  let diff = now - START_DATE;
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  const mins = Math.floor((diff % 3600000) / 60000);
+  const secs = Math.floor((diff % 60000) / 1000);
+  counterEls.days.textContent = days;
+  counterEls.hours.textContent = pad(hours);
+  counterEls.mins.textContent = pad(mins);
+  counterEls.secs.textContent = pad(secs);
+  pulseIfChanged(counterEls.days, 'days', days);
+  pulseIfChanged(counterEls.hours, 'hours', hours);
+  pulseIfChanged(counterEls.mins, 'mins', mins);
+  pulseIfChanged(counterEls.secs, 'secs', secs);
+
+  // cuenta atrás a la fecha especial
+  const remain = SPECIAL_DATE - now;
+  const remainDays = Math.max(0, Math.ceil(remain / 86400000));
+  document.getElementById('special-days').textContent = remainDays;
+
+  refreshLockStates();
+}
+setInterval(tickCounters, 1000);
+tickCounters();
+
+/* ---------- modal ---------- */
+const modal = document.getElementById('modal');
+let lastFocused = null;
+
+function openLetter(carta, fecha){
+  lastFocused = document.activeElement;
+  document.getElementById('letter-date').textContent = fmtFechaLarga(fecha);
+  document.getElementById('letter-title').textContent = carta.titulo;
+  document.getElementById('letter-body').textContent = carta.contenido;
+  modal.classList.add('show');
+  document.getElementById('letter-close').focus();
+  document.addEventListener('keydown', onKeydown);
+}
+function closeLetter(){
+  modal.classList.remove('show');
+  document.removeEventListener('keydown', onKeydown);
+  if(lastFocused) lastFocused.focus();
+}
+function onKeydown(e){ if(e.key === 'Escape') closeLetter(); }
+document.getElementById('letter-close').addEventListener('click', closeLetter);
+modal.addEventListener('click', (e) => { if(e.target === modal) closeLetter(); });
+
+/* ---------- archivo de cartas ---------- */
+let archiveLastFocused = null;
+
+function renderArchivo(disponibles){
+  archiveList.innerHTML = '';
+  document.getElementById('archive-count').textContent = '(' + disponibles.length + ')';
+  if(disponibles.length === 0){
+    archiveList.innerHTML = '<div class="archive-empty">Todavía no hay cartas disponibles.</div>';
+    return;
+  }
+  disponibles.forEach(({carta, fecha}) => {
+    const row = document.createElement('div');
+    row.className = 'archive-row';
+    
+    // Aplicamos rotación aleatoria estilo polaroid también al archivo
+    const randomTilt = getRandomTilt();
+    row.style.transform = `rotate(${randomTilt}deg)`;
+    row.setAttribute('data-tilt', randomTilt);
+    
+    row.innerHTML = `<span class="ar-date">${fmtFechaLarga(fecha)}</span><span class="ar-title">${carta.titulo}</span>`;
+    
+    // Restauramos la rotación en hover para mantener la interactividad
+    row.addEventListener('mouseenter', function() {
+      this.style.transform = `translateY(-2px) rotate(${this.getAttribute('data-tilt')}deg)`;
+    });
+    row.addEventListener('mouseleave', function() {
+      this.style.transform = `rotate(${this.getAttribute('data-tilt')}deg)`;
+    });
+    
+    row.addEventListener('click', () => { closeArchive(); openLetter(carta, fecha); });
+    archiveList.appendChild(row);
+  });
+}
+function openArchive(){
+  archiveLastFocused = document.activeElement;
+  archiveEl.classList.add('show');
+  document.getElementById('archive-close').focus();
+  document.addEventListener('keydown', onArchiveKeydown);
+}
+function closeArchive(){
+  archiveEl.classList.remove('show');
+  document.removeEventListener('keydown', onArchiveKeydown);
+  if(archiveLastFocused) archiveLastFocused.focus();
+}
+function onArchiveKeydown(e){ if(e.key === 'Escape') closeArchive(); }
+document.getElementById('archive-open').addEventListener('click', openArchive);
+document.getElementById('archive-close').addEventListener('click', closeArchive);
+archiveEl.addEventListener('click', (e) => { if(e.target === archiveEl) closeArchive(); });
+
+/* ---------- reveal on scroll ---------- */
+const revealEls = document.querySelectorAll('.reveal');
+if(REDUCED_MOTION){
+  revealEls.forEach(el => el.classList.add('in-view'));
+} else {
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        entry.target.classList.add('in-view');
+        io.unobserve(entry.target);
+      }
+    });
+  }, {threshold:.15});
+  revealEls.forEach(el => io.observe(el));
+}
+
+</script>
+</body>
+</html>
