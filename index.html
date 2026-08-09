@@ -18,7 +18,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💕</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,600&family=Caveat:wght@500;600;700&family=Inter:wght@400;500;600;700;900&family=Permanent+Marker&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,600&family=Caveat:wght@500;600;700&family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
 <style>
   :root{
     /* Colores inspirados en la portada "Un Verano Sin Ti" */
@@ -28,11 +28,16 @@
     --bg-sand2: #EB5D1E;  /* Arena naranja */
     
     --heart-red: #E22015; /* Rojo del corazón */
+    --heart-red-dark: #B81A0F; /* Rojo más oscuro para mejor contraste */
     --sun-yellow: #FFD500;/* Amarillo sol */
+    --sun-yellow-dark: #E6BF00; /* Amarillo más oscuro */
     
     --paper: #FDF6EC;     /* Papel cálido para las cartas */
+    --paper-dark: #E8DDD0; /* Papel más oscuro para contraste */
     --ink: #1A1A1A;       /* Negro tipo marcador */
+    --ink-light: #444444; /* Gris oscuro legible */
     --text-soft: #FFFFFF;
+    --text-muted: #CCCCCC; /* Gris claro para texto secundario */
     
     /* Estilos Pop-Art / Dibujo a mano */
     --border-dark: 3px solid var(--ink);
@@ -41,16 +46,12 @@
     --max: 640px;
     --ease: cubic-bezier(.16,1,.3,1);
     --ease-spring: cubic-bezier(.34,1.56,.64,1);
-    
-    /* Textura de grano retro */
-    --grain-opacity: 0.04;
   }
 
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
   body{
     margin:0;
-    /* Degradado duro que simula el cielo, el mar y la arena de la portada */
     background: linear-gradient(180deg, 
       var(--bg-sky) 0%, 
       var(--bg-sky) 30%, 
@@ -67,20 +68,6 @@
     position:relative;
   }
 
-  /* Capa de textura de grano retro (serigrafía) */
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    /* Patrón SVG con ruido */
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.5'/%3E%3C/svg%3E");
-    background-size: 256px 256px;
-    opacity: 0.035;
-    mix-blend-mode: overlay;
-  }
-
   h1,h2,h3{font-family:'Playfair Display',serif; margin:0; font-weight:700;}
   .script{font-family:'Caveat',cursive;}
   a{color:inherit;}
@@ -90,7 +77,6 @@
   /* ---------- Elementos flotantes tropicales ---------- */
   .fireflies{position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden;}
   
-  /* Sobreescribimos las luciérnagas para convertirlas en emojis del álbum usando solo CSS */
   .firefly{
     position:absolute; 
     background:transparent !important; 
@@ -144,7 +130,7 @@
     font-family:'Caveat',cursive; font-weight:700;
     font-size:clamp(3rem,12vw,5rem);
     color: #FFF; line-height:1.05; margin-bottom:14px;
-    text-shadow: 4px 4px 0px var(--ink); /* Sombra sólida estilo cómic */
+    text-shadow: 4px 4px 0px var(--ink);
     -webkit-text-stroke: 1px var(--ink);
     transform: rotate(-2deg);
   }
@@ -163,7 +149,7 @@
     border-radius: 12px;
     width:76px; padding:14px 0;
     display:flex; flex-direction:column; align-items:center; gap:4px;
-    box-shadow: var(--pop-shadow); /* Sombra sólida */
+    box-shadow: var(--pop-shadow);
     transform: rotate(1deg);
     transition: transform 0.2s;
   }
@@ -237,19 +223,9 @@
   .carta-body{flex:1; min-width:0;}
   .carta-date{font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color: var(--heart-red);}
   .carta.locked .carta-date{color: #777;}
-  
-  /* Tipografía manuscrita estilo marcador para los títulos */
-  .carta-title{
-    font-family:'Permanent Marker', cursive; 
-    font-size:1.1rem; 
-    font-weight: 400; 
-    color:var(--ink); 
-    margin-top:4px;
-    letter-spacing: 0.02em;
-    line-height: 1.3;
-  }
+  .carta-title{font-family:'Playfair Display',serif; font-size:1.1rem; font-weight: 700; color:var(--ink); margin-top:4px;}
   .carta.locked .carta-title{color: #555;}
-  .carta-sub{font-size:.8rem; font-weight:600; color: #555; margin-top:4px;}
+  .carta-sub{font-size:.8rem; font-weight:600; color: var(--ink-light); margin-top:4px;}
   
   .timeline-note{text-align:center; color:#FFF; font-weight:700; font-size:.9rem; margin-top:30px; text-shadow: 2px 2px 0px var(--ink);}
 
@@ -272,7 +248,7 @@
   .archive-back.show{opacity:1; pointer-events:auto;}
   .archive-panel{
     width:100%; max-width:var(--max); max-height:78vh; 
-    background: var(--bg-sea); /* Azul del mar para el panel */
+    background: var(--bg-sea);
     border: var(--border-dark); border-bottom:none;
     border-radius:24px 24px 0 0; padding:20px 4px 10px; display:flex; flex-direction:column;
     transform:translateY(100%); transition:transform .4s var(--ease-spring);
@@ -298,15 +274,7 @@
   .archive-row:hover{transform: translateY(-2px); box-shadow: 5px 5px 0px var(--ink);}
   .archive-row:active{transform: translateY(2px); box-shadow: 1px 1px 0px var(--ink);}
   .ar-date{font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--heart-red);}
-  
-  /* Tipografía manuscrita estilo marcador para los títulos del archivo */
-  .ar-title{
-    font-size:.95rem; 
-    font-weight:400; 
-    color:var(--ink); 
-    font-family:'Permanent Marker', cursive;
-    letter-spacing: 0.02em;
-  }
+  .ar-title{font-size:.95rem; font-weight:700; color:var(--ink); font-family:'Playfair Display',serif;}
   .archive-empty{text-align:center; color:var(--ink); font-weight:700; font-size:.95rem; padding:30px 20px;}
 
   /* ---------- modal ---------- */
@@ -326,7 +294,7 @@
   .modal-back.show .letter{transform:translateY(0) scale(1) rotate(0deg);}
   .letter-date{font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:var(--heart-red);}
   .letter h3{font-family:'Playfair Display',serif; margin-top:10px; font-size:1.5rem; font-weight:800; color:var(--ink);}
-  .letter-body{font-family:'Caveat',cursive; font-size:1.45rem; line-height:1.4; margin-top:18px; white-space:pre-wrap; font-weight:600;}
+  .letter-body{font-family:'Caveat',cursive; font-size:1.45rem; line-height:1.4; margin-top:18px; white-space:pre-wrap; font-weight:600; color:var(--ink);}
   .letter-close{
     position:absolute; top:16px; right:16px; background:var(--sun-yellow); border: 2px solid var(--ink); cursor:pointer;
     font-size:1.2rem; font-weight:bold; color:var(--ink); width:36px; height:36px; border-radius:50%;
@@ -357,14 +325,296 @@
 
   footer{text-align:center; padding:30px 24px; color:#FFF; font-weight:700; font-size:.85rem; text-shadow: 2px 2px 0px var(--ink);}
 
-  @media (prefers-reduced-motion: reduce){
-    html{scroll-behavior:auto;}
-    .firefly,.scrollcue{animation:none !important;}
-    .reveal{transition:none;}
-    .hero-in{animation:none !important; opacity:1 !important; transform:none !important;}
-    .counter .num.tick{animation:none !important;}
-    .carta{transition-delay:0s !important;}
-    .archive-panel{transition:none !important;}
+  /* ============================================================
+     ESTILOS DE LA PÁGINA DE ERROR (con contrastes corregidos)
+     ============================================================ */
+  .error-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: errorFadeIn 0.4s var(--ease);
+  }
+
+  @keyframes errorFadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes errorPulseIcon {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+  }
+
+  @keyframes errorSlideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .error-card {
+    max-width: 520px;
+    width: 100%;
+    background: var(--paper);
+    border: var(--border-dark);
+    border-radius: 16px;
+    padding: 40px 32px 36px;
+    box-shadow: 10px 10px 0 var(--ink);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    animation: errorSlideUp 0.5s var(--ease-spring);
+  }
+
+  .error-card::before {
+    content: '💔';
+    position: absolute;
+    font-size: 120px;
+    opacity: 0.04;
+    top: -20px;
+    right: -30px;
+    transform: rotate(15deg);
+    pointer-events: none;
+  }
+
+  .error-card::after {
+    content: '🌺';
+    position: absolute;
+    font-size: 80px;
+    opacity: 0.05;
+    bottom: -10px;
+    left: -20px;
+    transform: rotate(-10deg);
+    pointer-events: none;
+  }
+
+  .error-icon {
+    font-size: 64px;
+    margin-bottom: 8px;
+    display: block;
+    animation: errorPulseIcon 2s var(--ease) infinite;
+  }
+
+  .error-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--heart-red);
+    margin-top: 4px;
+    margin-bottom: 12px;
+  }
+
+  .error-subtitle {
+    font-family: 'Caveat', cursive;
+    font-size: 1.1rem;
+    color: var(--ink-light);
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+
+  .error-message-box {
+    background: rgba(244, 132, 154, 0.08);
+    border-left: 4px solid var(--heart-red);
+    padding: 16px 20px;
+    border-radius: 0 10px 10px 0;
+    margin-bottom: 24px;
+    text-align: left;
+  }
+
+  .error-message-box p {
+    font-size: 0.92rem;
+    line-height: 1.7;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .error-message-box .highlight {
+    color: var(--heart-red);
+    font-weight: 700;
+  }
+
+  .error-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0 24px;
+  }
+
+  .error-divider::before,
+  .error-divider::after {
+    content: '';
+    flex: 1;
+    height: 2px;
+    background: var(--ink);
+    opacity: 0.2;
+  }
+
+  .error-divider span {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-light);
+    white-space: nowrap;
+  }
+
+  .error-whatsapp-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: #25D366;
+    border: var(--border-dark);
+    border-radius: 30px;
+    padding: 14px 32px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--ink);
+    box-shadow: var(--pop-shadow);
+    cursor: pointer;
+    transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+    text-decoration: none;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .error-whatsapp-btn:hover {
+    transform: translateY(-3px) translateX(-3px);
+    box-shadow: 8px 8px 0 var(--ink);
+  }
+
+  .error-whatsapp-btn:active {
+    transform: translateY(2px) translateX(2px);
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+
+  .error-whatsapp-btn .wa-icon {
+    font-size: 1.5rem;
+    flex: none;
+  }
+
+  .error-whatsapp-btn .wa-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.2;
+  }
+
+  .error-whatsapp-btn .wa-main {
+    font-size: 0.92rem;
+    color: var(--ink);
+  }
+
+  .error-whatsapp-btn .wa-sub {
+    font-size: 0.65rem;
+    font-weight: 500;
+    opacity: 0.7;
+    color: var(--ink);
+  }
+
+  .error-actions {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .error-actions .error-btn {
+    color: var(--ink-light);
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 8px 16px;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    cursor: pointer;
+    background: none;
+    font-family: 'Inter', sans-serif;
+    transition: background 0.2s var(--ease), border-color 0.2s var(--ease);
+  }
+
+  .error-actions .error-btn:hover {
+    background: rgba(255, 213, 0, 0.15);
+    border-color: var(--sun-yellow);
+  }
+
+  .error-actions .error-btn:focus-visible {
+    outline: 2px solid var(--heart-red);
+    outline-offset: 2px;
+  }
+
+  .error-footer-text {
+    margin-top: 28px;
+    padding-top: 16px;
+    border-top: 2px dashed rgba(26, 26, 26, 0.1);
+    font-size: 0.7rem;
+    color: var(--ink-light);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  .error-footer-text .heart {
+    color: var(--heart-red);
+  }
+
+  @media (max-width: 480px) {
+    .error-card {
+      padding: 28px 20px 24px;
+      box-shadow: 6px 6px 0 var(--ink);
+    }
+    .error-title {
+      font-size: 1.3rem;
+    }
+    .error-icon {
+      font-size: 48px;
+    }
+    .error-whatsapp-btn {
+      padding: 12px 20px;
+      font-size: 0.85rem;
+    }
+    .error-whatsapp-btn .wa-main {
+      font-size: 0.85rem;
+    }
+    .error-message-box {
+      padding: 12px 16px;
+    }
+    .error-message-box p {
+      font-size: 0.85rem;
+    }
+    .error-actions .error-btn {
+      font-size: 0.75rem;
+      padding: 6px 12px;
+    }
+  }
+
+  @media (max-width: 380px) {
+    .error-card {
+      padding: 20px 14px 18px;
+    }
+    .error-title {
+      font-size: 1.1rem;
+    }
+    .error-whatsapp-btn .wa-sub {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .error-icon {
+      animation: none !important;
+    }
+    .error-overlay {
+      animation: none !important;
+    }
+    .error-card {
+      animation: none !important;
+    }
   }
 
   @media (min-width:700px){
@@ -402,7 +652,7 @@
   </div>
   <div class="wrap">
     <div class="timeline reveal" id="timeline"></div>
-    <div class="timeline-note">cada día 10 se añade una carta nueva.</div>
+    <div class="timeline-note">cada día 10 se añade una carta nueva, sola</div>
     <button class="archive-btn reveal" id="archive-open" type="button">
       📖 Ver todas las cartas <span id="archive-count"></span>
     </button>
@@ -411,12 +661,12 @@
 
 <!-- ===================== CIERRE ===================== -->
 <section class="closing reveal">
-  <span class="star-ic">💫💕💫</span>
+  <span class="star-ic">💕</span>
   <h2>Gracias por ser mi<br>persona favorita.</h2>
 
   <div class="special-note">
-    <div class="sn-title">✨IMPORTANTE✨</div>
-    <p>El 10 de noviembre se actualiza la pagina.</p>
+    <div class="sn-title">💫 GUARDA ESTA FECHA</div>
+    <p>El 10 de noviembre de 2026 esta página va a cambiar. Hay algo importante que quiero decirte ese día — vuelve a abrir esto cuando llegue.</p>
     <div class="sn-count">Faltan <b id="special-days">—</b> días</div>
   </div>
 </section>
@@ -461,18 +711,17 @@ const CARTAS = [
     titulo: "Un pequeño rincón para ti",
     contenido: `Querida Lissyanet,
 Si estás leyendo esto es porque por fin te enseñé este rincón que llevaba tiempo preparando para ti. No es gran cosa a primera vista pero confío en que te va a gustar. Esta pagina es un recordatorio más del amor que siento por vos, la verdad quería darte un regalo por tu “cumpleaños” pero no tenia presupuesto asi que se me ocurrio la idea de crear un pequeño lugar donde siempre que quieras puedes leer las cartas que te escribo y… ya se que no es un bolso ni un rimel, pero igual es con mucho amor. Como ya pudiste ver aun hay cartas que no se han desbloqueado asi que toca esperar. Realmente espero que esto te guste. Y una vez más.
-           		Con amor,               
-           		 Gabriel.              
-                                                      `
+                         
+                                     Con mucho amor, 
+                                                      Gabriel.`
   },
   {
     fecha: "2026-07-19",
     titulo: "Para sacarte una sonrisa",
     contenido: `Querida Lissyanet,
 Si ves esta carta significa que realmente te gustó este pequeño espacio que creé para vos. la verdad, a veces no sé muy bien qué ponerte en una carta sin que suene repetitivo, pero realmente me gusta escribirte, tan solo por el simple hecho de ver una sonrisa en tu hermoso rostro mientras la leés. Quiero aprovechar este espacio para poder expresar mis sentimientos hacia vos de una manera más sencilla. No importa si lo leés hoy, dentro de una semana o incluso dentro de varios meses. Mi intención es que cada vez que abras esta página puedas sentir un pedacito de todo el cariño con el que la hice. Gracias por tomarte el tiempo de leer esto y por ser la persona que me inspira a hacer todas estas pequeñas locuras. Ojalá esta carta consiga sacarte una sonrisa, aunque sea una chiquita, porque con eso ya sentiría que valió completamente la pena escribirla.
-                          Con amor,
-			Gabriel.
-                                             `
+                            Con todo mi amor,
+                                               Gabriel.`
   },
   {
     fecha: "2026-07-31",
@@ -480,11 +729,15 @@ Si ves esta carta significa que realmente te gustó este pequeño espacio que cr
     contenido: `Querida Lissyanet,
 
 Hola, no sé si llegues a ver esto. La verdad, esta carta no es de amor, pero ya sabes que una de las formas más simples que tengo para expresar mis sentimientos es escribirte. Estos últimos días han sido muy difíciles para mí, han pasado demasiadas cosas y siento que yo estoy en el medio de todo; siento que yo soy lo que estorba. Tal vez no debería tomarme esto de esta manera, pero por mucho que lo intente, se me hace muy difícil. Ciertamente creo que la forma en la que me siento se debe a que soy muy sensible. Esto no debería afectarme tanto, pero ya sabes que a veces convierto un pequeño grano de arena en un enorme desierto. Yo sé que tú no tienes nada que ver con esto y tampoco quiero que te sientas mal ni mucho menos. A veces me pongo a pensar por qué me pasan este tipo de cosas a mí; o sea, ya sé que no he sido un santo, pero siempre intento que todo salga bien aunque no me beneficie, y a cambio solo me pasan cosas malas. La verdad, lo que más me molesta de todo es que Tulu se haya perdido. Él es muy importante para mí y le tengo mucho cariño, y si no aparece nunca más, no sé cómo podré acostumbrarme. Tal vez solamente debería intentar cambiar mi forma de llevar las cosas y no ser tan sensible… es una tontería, eso ya me lo he dicho mil veces y no lo he podido cambiar. Pero bueno, solamente se puede hacer una cosa y es seguir adelante, pase lo que pase.
-			Con amor,
-				Gabriel
-                                    
-                                                `
+
+                                         Con amor, 
+                                                    Gabriel.`
   },
+  {
+    fecha: "2026-08-10",
+    titulo: "Mi bebi😋",
+    contenido: "Esta carta ha sido bloqueada temporalmente."
+  }
 ];
 /* ===== CARTAS_END ===== */
 
@@ -531,9 +784,7 @@ function generarCartasMensuales(){
   horizonte.setFullYear(horizonte.getFullYear() + 3);
   let y = y0, m = m0;
   
-  // La fecha se genera después de ajustar mes y año
   while(true){
-    // Ajusta el año si el mes se pasa de diciembre
     if(m > 12){ 
       m = 1; 
       y++; 
@@ -559,7 +810,7 @@ function todasLasCartas(){
   return [...CARTAS, ...mensuales];
 }
 
-/* ---------- elementos tropicales flotantes ---------- */
+/* ---------- elementos tropicales flotantes (javascript original de luciérnagas) ---------- */
 (function buildFireflies(){
   const container = document.getElementById('fireflies');
   const n = 35;
@@ -581,12 +832,6 @@ function todasLasCartas(){
 
 function pad(n){ return String(n).padStart(2,'0'); }
 
-/* ---------- Función para generar rotación aleatoria tipo polaroid/sticker ---------- */
-function getRandomTilt() {
-  // Guardamos la rotación en el elemento para que sea persistente
-  return (Math.random() * 4 - 2).toFixed(2); // Entre -2 y +2 grados
-}
-
 /* ---------- cartas / timeline ---------- */
 const timelineEl = document.getElementById('timeline');
 let cartaEls = [];
@@ -594,21 +839,15 @@ const archiveEl = document.getElementById('archive');
 const archiveList = document.getElementById('archive-list');
 
 function buildTimeline(){
-  // Limpiar timeline antes de reconstruir
-  timelineEl.innerHTML = '';
-  cartaEls = [];
-  
   const todas = todasLasCartas();
   const now = new Date();
 
-  // ventana de las 5 cartas más cercanas a hoy
   const conFecha = todas.map(c => ({carta:c, fecha:parseLocalDate(c.fecha)}));
   conFecha.sort((a, b) => Math.abs(a.fecha - now) - Math.abs(b.fecha - now));
   const ventana = conFecha.slice(0, 5).sort((a, b) => a.fecha - b.fecha);
 
   ventana.forEach(({carta, fecha}, i) => {
     const unlocked = now >= fecha;
-    const randomTilt = getRandomTilt();
 
     const item = document.createElement('div');
     item.className = 'carta reveal' + (unlocked ? '' : ' locked');
@@ -616,10 +855,6 @@ function buildTimeline(){
 
     const card = document.createElement('div');
     card.className = 'carta-card';
-    // Aplicamos rotación aleatoria estable (sin hover por ahora para mantener el efecto)
-    card.style.transform = `rotate(${randomTilt}deg)`;
-    card.setAttribute('data-tilt', randomTilt);
-    
     card.innerHTML = `
       <div class="carta-icon">${unlocked ? '💌' : '🔒'}</div>
       <div class="carta-body">
@@ -629,28 +864,99 @@ function buildTimeline(){
       </div>
     `;
     if(unlocked){
-      card.addEventListener('click', () => openLetter(carta, fecha));
-      
-      // Restauramos la rotación en hover para mantener la interactividad
-      card.addEventListener('mouseenter', function() {
-        this.style.transform = `translateY(-4px) translateX(-4px) rotate(${this.getAttribute('data-tilt')}deg)`;
-      });
-      card.addEventListener('mouseleave', function() {
-        this.style.transform = `rotate(${this.getAttribute('data-tilt')}deg)`;
-      });
+      // Verificar si es la carta del 10 de agosto (redirige a error)
+      const fechaStr = fecha.toISOString().split('T')[0];
+      if(fechaStr === '2026-08-10') {
+        card.addEventListener('click', () => showErrorPage());
+      } else {
+        card.addEventListener('click', () => openLetter(carta, fecha));
+      }
     }
-    
     item.appendChild(card);
     timelineEl.appendChild(item);
     cartaEls.push({el:item, sub:card.querySelector('.sub-text'), fecha, unlocked, carta});
   });
   refreshLockStates();
 
-  // archivo: todas las cartas disponibles
   const disponibles = conFecha
     .filter(c => now >= c.fecha)
     .sort((a, b) => b.fecha - a.fecha);
   renderArchivo(disponibles);
+}
+
+/* ---------- Página de error personalizada (con contrastes corregidos) ---------- */
+function showErrorPage() {
+  // Eliminar overlay existente si hay uno
+  const existingOverlay = document.getElementById('errorOverlay');
+  if (existingOverlay) existingOverlay.remove();
+
+  const errorOverlay = document.createElement('div');
+  errorOverlay.id = 'errorOverlay';
+  errorOverlay.className = 'error-overlay';
+
+  errorOverlay.innerHTML = `
+    <div class="error-card">
+      <span class="error-icon" aria-hidden="true">💔</span>
+      <h2 class="error-title">No se pudo cargar la carta</h2>
+      <p class="error-subtitle">Algo salió mal, pero todo tiene solución</p>
+      
+      <div class="error-message-box">
+        <p>
+          <strong>📌 Ocurrió un inconveniente técnico</strong><br>
+          La carta del 10 de agosto no está disponible en este momento.
+          Por favor, <span class="highlight">contacta con el desarrollador</span>
+          para reportar este problema y recibir asistencia.
+        </p>
+      </div>
+      
+      <div class="error-divider">
+        <span>📱 contacto directo</span>
+      </div>
+      
+      <a href="https://wa.me/5359267620?text=Hola%2C%20estoy%20teniendo%20problemas%20para%20cargar%20la%20carta%20del%2010%20de%20agosto.%20%C2%BFPuedes%20ayudarme%3F%20🙏" 
+         target="_blank" 
+         rel="noopener noreferrer"
+         class="error-whatsapp-btn">
+        <span class="wa-icon" aria-hidden="true">💬</span>
+        <span class="wa-text">
+          <span class="wa-main">Escribir al desarrollador</span>
+          <span class="wa-sub">Respuesta rápida por WhatsApp</span>
+        </span>
+      </a>
+      
+      <div class="error-actions">
+        <button class="error-btn" onclick="document.getElementById('errorOverlay').remove()" type="button">
+          ⬅️ Volver atrás
+        </button>
+        <button class="error-btn" onclick="window.location.reload()" type="button">
+          🔄 Reintentar
+        </button>
+      </div>
+      
+      <div class="error-footer-text">
+        <span class="heart">💕</span> Gracias por tu paciencia <span class="heart">💕</span>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(errorOverlay);
+
+  // Cerrar con Escape
+  const closeError = (e) => {
+    if (e.key === 'Escape') {
+      errorOverlay.remove();
+      document.removeEventListener('keydown', closeError);
+    }
+  };
+  document.addEventListener('keydown', closeError);
+
+  // Cerrar click fuera
+  errorOverlay.addEventListener('click', (e) => {
+    if (e.target === errorOverlay) {
+      errorOverlay.remove();
+      document.removeEventListener('keydown', closeError);
+    }
+  });
 }
 
 function refreshLockStates(){
@@ -689,7 +995,6 @@ function pulseIfChanged(el, key, val){
 function tickCounters(){
   const now = new Date();
 
-  // tiempo juntos
   let diff = now - START_DATE;
   const days = Math.floor(diff / 86400000);
   const hours = Math.floor((diff % 86400000) / 3600000);
@@ -704,7 +1009,6 @@ function tickCounters(){
   pulseIfChanged(counterEls.mins, 'mins', mins);
   pulseIfChanged(counterEls.secs, 'secs', secs);
 
-  // cuenta atrás a la fecha especial
   const remain = SPECIAL_DATE - now;
   const remainDays = Math.max(0, Math.ceil(remain / 86400000));
   document.getElementById('special-days').textContent = remainDays;
@@ -719,6 +1023,13 @@ const modal = document.getElementById('modal');
 let lastFocused = null;
 
 function openLetter(carta, fecha){
+  // Verificar si es la carta del 10 de agosto
+  const fechaStr = fecha.toISOString().split('T')[0];
+  if(fechaStr === '2026-08-10') {
+    showErrorPage();
+    return;
+  }
+
   lastFocused = document.activeElement;
   document.getElementById('letter-date').textContent = fmtFechaLarga(fecha);
   document.getElementById('letter-title').textContent = carta.titulo;
@@ -749,23 +1060,17 @@ function renderArchivo(disponibles){
   disponibles.forEach(({carta, fecha}) => {
     const row = document.createElement('div');
     row.className = 'archive-row';
-    
-    // Aplicamos rotación aleatoria estilo polaroid también al archivo
-    const randomTilt = getRandomTilt();
-    row.style.transform = `rotate(${randomTilt}deg)`;
-    row.setAttribute('data-tilt', randomTilt);
-    
     row.innerHTML = `<span class="ar-date">${fmtFechaLarga(fecha)}</span><span class="ar-title">${carta.titulo}</span>`;
-    
-    // Restauramos la rotación en hover para mantener la interactividad
-    row.addEventListener('mouseenter', function() {
-      this.style.transform = `translateY(-2px) rotate(${this.getAttribute('data-tilt')}deg)`;
+    row.addEventListener('click', () => { 
+      closeArchive(); 
+      // Verificar si es la carta del 10 de agosto
+      const fechaStr = fecha.toISOString().split('T')[0];
+      if(fechaStr === '2026-08-10') {
+        showErrorPage();
+      } else {
+        openLetter(carta, fecha);
+      }
     });
-    row.addEventListener('mouseleave', function() {
-      this.style.transform = `rotate(${this.getAttribute('data-tilt')}deg)`;
-    });
-    
-    row.addEventListener('click', () => { closeArchive(); openLetter(carta, fecha); });
     archiveList.appendChild(row);
   });
 }
